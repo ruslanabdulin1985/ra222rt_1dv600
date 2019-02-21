@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.lang.Character;
+import java.lang.String;
 
 /**
  * 
@@ -16,11 +18,18 @@ public class Hangman {
 	//private boolean gameIsGoOn;
 	private int hangmanStatus;
 	private int wasLasCharacterGuest;
+	private Player player;
+
+	private String status;
+
+	 
 	
 	public Hangman() { // constructor
 		//wordToGuess = "alfa";
 		wordToGuess = DataBase.getRandomWord();
 		triedLetters = new ArrayList<Character>();
+		
+		status = "startGame";
 		//triedLetters[0] = 'b';
 		guessedLetters = new ArrayList<Character>();
 		//guessedLetters.add('a');
@@ -28,6 +37,28 @@ public class Hangman {
 		hangmanStatus = 0;
 		wasLasCharacterGuest =0;
 		
+		player = null;
+		
+	}
+	
+	public void setDefaultHangman(Player player) {
+		wordToGuess = DataBase.getRandomWord();
+		triedLetters = new ArrayList<Character>();
+		
+		status = "startGame";
+		//triedLetters[0] = 'b';
+		guessedLetters = new ArrayList<Character>();
+		//guessedLetters.add('a');
+		//gameIsGoOn = true;
+		hangmanStatus = 0;
+		wasLasCharacterGuest =0;
+		
+		this.player = player;
+	}
+	
+	
+	public String getWordToGuess() {
+		return wordToGuess;
 	}
 	
 	public boolean isGameGoOn() {
@@ -57,7 +88,8 @@ public class Hangman {
 		for (int i = 0; i<this.wordToGuess.length(); i++) {
 			coincidens = false;
 			for (int j = 0; j<this.guessedLetters.size(); j++)
-				if (this.wordToGuess.charAt(i)!=guessedLetters.get(j))
+				
+				if (this.wordToGuess.charAt(i)!=(Character)guessedLetters.get(j))
 					continue;
 				else
 					coincidens =true;
@@ -128,43 +160,7 @@ public class Hangman {
 	
 	
 	
-	public void renewInterface() {
-		for(int i = 0; i<4; i++)
-			System.out.println(" ");
-		
-		System.out.println(DrawHangmanImage.draw2(hangmanStatus));
-		
-		if(this.AmIWon()) {
-			System.out.println(" ");
-			System.out.print("You Win");
-			System.out.println(" ");
-		}
-		
-		if(this.isGameGoOn()) {
-			System.out.println(" ");
-			System.out.println(this.getCurrentAlphabet());
-			System.out.println(" ");
-		}
-		
-		System.out.println(this.drawDashes());
-		System.out.println(" ");
-		
-		if (wasLasCharacterGuest == 0)
-			System.out.println("");
-		else if (wasLasCharacterGuest == 1)
-			System.out.println("correct !");
-		else 
-			System.out.println("wrong !");
-		
-		if(this.isGameGoOn())
-			System.out.print("Enter a letter: ");
-		else
-			if (!this.AmIWon())
-				System.out.print("You Loose");
-		
-		
-		//System.out.println(DataBase.getAlphabet(13, 25));
-	}
+	
 
 	public boolean AmIWon() {
 		boolean win = true;
@@ -180,6 +176,136 @@ public class Hangman {
 
 	public void addToTried(char letter) {
 		this.triedLetters.add(letter);
+	}
+
+	public String getStatus() {
+		return this.status;
+	}
+
+	public void change(String input) {
+		
+		switch(this.status) {
+		case "startGame":
+			if (input.matches("n"))
+				this.status = "NewPlayer";
+			if (input.matches("e"))
+				this.status = "ExistingPlayer";
+			break;
+	
+		case "NewPlayer":
+			this.status = "startGame";
+			change(input);
+			// hasn't been implemented
+			break;
+		
+		case "ExistingPlayer":
+			// hasn't been fully implemented 
+			this.player = new Player();
+			this.status = "MainMenu";
+			break;
+			
+		case "MainMenu":
+			// hasn't been fully implemented 
+			if (input.matches("p"))
+				this.status = "GameMustGoOn";
+			
+			if (input.matches("l"))
+				this.status = "LoadGame";
+			
+			if (input.matches("h"))
+				this.status = "Higscores";
+			
+			if (input.matches("q"))
+				this.status = "exit";
+			
+			break;
+			
+		case "LoadGame":
+			this.status = "MainMenu";
+			change(input);
+			// hasn't been implemented
+			break;
+			
+		case "Higscores":
+			this.status = "MainMenu";
+			change(input);
+			// hasn't been implemented
+			break;
+			
+		case "GameMustGoOn":
+			if (this.GetHangmanStatus()<12) {
+				if (this.isThereAletter(input.charAt(0))) {
+					this.addToGuessed(input.charAt(0));
+					this.addToTried(input.charAt(0));
+					this.setLasCharacterGuest(1);
+				}
+				
+				else {
+					this.addToTried(input.charAt(0));
+					this.SetHangmanStatus(this.GetHangmanStatus()+2);
+					this.setLasCharacterGuest(2);
+					//
+				}
+			}
+			else
+				this.status = "YouLoose";
+			// hasn't been fully implemented 
+				
+				
+			
+			if (this.AmIWon())
+				this.status = "YouWin";
+			// hasn't been fully implemented 
+				
+			break;
+			
+			
+			
+		case "YouLoose":
+			if (input.matches("p"))
+				this.status = "GameMustGoOn";
+
+			if (input.matches("h"))
+				this.status = "Higscores";
+			
+			if (input.matches("q"))
+				this.status = "exit";
+			
+			break;	
+			
+		case "YouWin":
+			if (input.matches("p"))
+				this.setDefaultHangman(this.player);
+				this.status = "GameMustGoOn";
+				
+
+			if (input.matches("h"))
+				this.status = "Higscores";
+			
+			if (input.matches("q"))
+				this.status = "exit";
+			
+			break;	
+			
+		}
+		
+		
+			
+		
+		
+		
+		System.out.println("Current status: "+ this.status);
+		System.out.print("Current Input: ?" + input + "?" );
+		
+	}
+
+	public Player getPlayer() {
+		return this.player;
+	}
+
+	public ArrayList<Character> getGuessedLetters() {
+		// TODO Auto-generated method stub
+		return this.guessedLetters;
 	}	
 	
 }
