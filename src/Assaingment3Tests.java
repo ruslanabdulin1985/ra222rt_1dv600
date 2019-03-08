@@ -88,6 +88,7 @@ class Assaingment3Tests {
 		
 		//compare the actual result with the expected value and report (done by framework)
 		assertEquals(correctResult, actual);
+	
 	}
 }
 

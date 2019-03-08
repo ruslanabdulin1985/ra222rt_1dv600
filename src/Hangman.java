@@ -178,7 +178,9 @@ public class Hangman {
 	}
 
 	public String getStatus() {
-		return this.status;
+		if (this.status != "" && this.status != "GameIsClosed")
+			return this.status;
+		else return "GameIsClosed";
 	}
 
 	public void change(String input) {  //main function in the game
