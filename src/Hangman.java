@@ -15,9 +15,12 @@ public class Hangman {
 	
 	private ArrayList<Character> triedLetters;
 	private ArrayList<Character> guessedLetters; 
+	private String systemMessage;
+	
+	
 	//private boolean gameIsGoOn;
 	private int hangmanStatus;
-	private int wasLasCharacterGuest;
+//	private int wasLasCharacterGuest;
 	private Player player;
 
 	private String status;
@@ -25,52 +28,56 @@ public class Hangman {
 	 
 	
 	public Hangman() { // constructor
-		//wordToGuess = "alfa";
-		wordToGuess = DataBase.getRandomWord();
-		triedLetters = new ArrayList<Character>();
+		this.wordToGuess = DataBase.getRandomWord();
+		this.triedLetters = new ArrayList<Character>();
+		this.systemMessage = "";
+		this.status = "startGame";
+
+		this.guessedLetters = new ArrayList<Character>();
+
+		this.hangmanStatus = 0;
+//		this.wasLasCharacterGuest =0;
 		
-		status = "startGame";
-		//triedLetters[0] = 'b';
-		guessedLetters = new ArrayList<Character>();
-		//guessedLetters.add('a');
-		//gameIsGoOn = true;
-		hangmanStatus = 0;
-		wasLasCharacterGuest =0;
-		
-		player = null;
+		this.player = null;
 		
 	}
 	
 	public void setDefaultHangman(Player player) {
-		wordToGuess = DataBase.getRandomWord();
-		triedLetters = new ArrayList<Character>();
 		
-		status = "startGame";
-		//triedLetters[0] = 'b';
-		guessedLetters = new ArrayList<Character>();
-		//guessedLetters.add('a');
-		//gameIsGoOn = true;
-		hangmanStatus = 0;
-		wasLasCharacterGuest =0;
+		this.systemMessage = "";
+		this.wordToGuess = DataBase.getRandomWord();
+		this.triedLetters = new ArrayList<Character>();
+		
+		this.status = "startGame";
+
+		this.guessedLetters = new ArrayList<Character>();
+
+		this.hangmanStatus = 0;
+//		this.wasLasCharacterGuest =0;
 		
 		this.player = player;
 	}
 	
 	
+	public String getSystemMessage() {
+		return this.systemMessage;
+	}
+	
 	public String getWordToGuess() {
 		return wordToGuess;
 	}
 	
+	
 	public boolean isGameGoOn() {
-		if (this.hangmanStatus>=12 || this.AmIWon())
+		if (this.hangmanStatus>=12 || this.AmIWon())  //must be an error - toFIX !
 			return false;
 		else
 			return true;	
 	}
 	
-	public void setLasCharacterGuest(int n) {
-		wasLasCharacterGuest = n;
-	}
+//	public void setLasCharacterGuest(int n) {
+//		this.wasLasCharacterGuest = n;
+//	}
 	
 	
 	public int GetHangmanStatus(){
@@ -101,10 +108,6 @@ public class Hangman {
 		}
 		return dashes;
 					
-			
-			
-		
-		//System.out.println(dashes); 
 	}
 	
 	
@@ -158,10 +161,6 @@ public class Hangman {
 	}
 	
 	
-	
-	
-	
-
 	public boolean AmIWon() {
 		boolean win = true;
 		for(int i=0; i<this.wordToGuess.length(); i++)
@@ -182,7 +181,10 @@ public class Hangman {
 		return this.status;
 	}
 
-	public void change(String input) {
+	public void change(String input) {  //main function in the game
+		// responsible for every change within the game
+		
+		this.systemMessage = "";
 		
 		switch(this.status) {
 		case "startGame":
@@ -193,15 +195,33 @@ public class Hangman {
 			break;
 	
 		case "NewPlayer":
-			this.status = "startGame";
-			change(input);
-			// hasn't been implemented
+			try {
+			Player newPlayer = new Player(input);
+			DataBase.AddPlayer(newPlayer);
+			this.status = "MainMenu";
+			this.player = newPlayer;
+			}
+			
+			catch(RuntimeException e) {
+				this.systemMessage = e.getMessage();
+			}
+			
+			
 			break;
+			
 		
 		case "ExistingPlayer":
 			// hasn't been fully implemented 
-			this.player = new Player();
+			ArrayList<Player> listOfPlayers =  DataBase.getPlayers();
+			
+			try {
+			this.player = listOfPlayers.get(Integer.valueOf(input)-1);
 			this.status = "MainMenu";
+			}
+			catch (Exception e){
+				this.systemMessage += "Error! There is no such a player";
+			}
+					
 			break;
 			
 		case "MainMenu":
@@ -209,8 +229,10 @@ public class Hangman {
 			if (input.matches("p"))
 				this.status = "GameMustGoOn";
 			
-			if (input.matches("l"))
-				this.status = "LoadGame";
+			if (input.matches("l")) {
+				this.status = "MainMenu";
+				this.systemMessage="ERROR! : this function hasn't yet implemented";
+			}
 			
 			if (input.matches("h"))
 				this.status = "Higscores";
@@ -221,15 +243,18 @@ public class Hangman {
 			break;
 			
 		case "LoadGame":
-			this.status = "MainMenu";
-			change(input);
-			// hasn't been implemented
+			
 			break;
 			
 		case "Higscores":
 			this.status = "MainMenu";
-			change(input);
-			// hasn't been implemented
+			
+			if (input.matches("m"))
+				this.status = "MainMenu";
+			
+			if (input.matches("q"))
+				this.status = "exit";
+			
 			break;
 			
 		case "GameMustGoOn":
@@ -237,13 +262,13 @@ public class Hangman {
 				if (this.isThereAletter(input.charAt(0))) {
 					this.addToGuessed(input.charAt(0));
 					this.addToTried(input.charAt(0));
-					this.setLasCharacterGuest(1);
+//					this.setLasCharacterGuest(1);
 				}
 				
 				else {
 					this.addToTried(input.charAt(0));
 					this.SetHangmanStatus(this.GetHangmanStatus()+2);
-					this.setLasCharacterGuest(2);
+//					this.setLasCharacterGuest(2);
 					//
 				}
 			}
@@ -262,9 +287,11 @@ public class Hangman {
 			
 			
 		case "YouLoose":
-			if (input.matches("p"))
+			if (input.matches("p")) {
+				setDefaultHangman(this.player);
 				this.status = "GameMustGoOn";
-
+			}
+			
 			if (input.matches("h"))
 				this.status = "Higscores";
 			
@@ -274,10 +301,13 @@ public class Hangman {
 			break;	
 			
 		case "YouWin":
-			if (input.matches("p"))
-				this.setDefaultHangman(this.player);
+			
+			this.player.setHighScore(12 - this.hangmanStatus);
+			
+			if (input.matches("p")) {
+				setDefaultHangman(this.player);
 				this.status = "GameMustGoOn";
-				
+			}
 
 			if (input.matches("h"))
 				this.status = "Higscores";
@@ -288,24 +318,21 @@ public class Hangman {
 			break;	
 			
 		}
-		
-		
-			
-		
-		
-		
-		System.out.println("Current status: "+ this.status);
-		System.out.print("Current Input: ?" + input + "?" );
+
+//		System.out.println("Current status: "+ this.status);
+//		System.out.print("Current Input: ?" + input + "?" );
 		
 	}
 
 	public Player getPlayer() {
 		return this.player;
 	}
-
+	
 	public ArrayList<Character> getGuessedLetters() {
-		// TODO Auto-generated method stub
 		return this.guessedLetters;
 	}	
 	
+	public void setStatus (String paramStatus) {
+		this.status = paramStatus;
+	}	
 }

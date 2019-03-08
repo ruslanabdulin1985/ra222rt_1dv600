@@ -1,9 +1,14 @@
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 
 public class HangmanCmd {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		
+		DataBase.fill(); // filling database with predefined data
 		
 		Hangman game = new Hangman(); 
 		Scanner sc = new Scanner(System.in);
@@ -13,11 +18,8 @@ public class HangmanCmd {
 			
 			System.out.print("Type here:");
 			
-
-			
-		
 			game.change(sc.nextLine()); // apply input to the game
-			
+
 		}
 		sc.close();
 	}
@@ -27,6 +29,11 @@ public class HangmanCmd {
 		
 		String status = game.getStatus();
 		System.out.println(emptyLines());
+		if (!game.getSystemMessage().matches("")){
+			System.out.println("--------------------------------");
+			System.out.println(game.getSystemMessage());
+			System.out.println("--------------------------------");
+		}
 		
 		switch(status) {
 			case "startGame": 
@@ -39,15 +46,19 @@ public class HangmanCmd {
 			case "NewPlayer":
 				System.out.println(drawHangman(12));
 				System.out.println("Welcome to Hangman The Game!\n");
-				System.out.println("Enter 'n' for New Player or 'e' for Existing Player" );
+				System.out.println("Enter Your Name" );
 				
-				System.out.println("Sorry... this function hasnt yet implemented..." );
 				break;
 				
 			case "ExistingPlayer":
 				System.out.println(drawHangman(12));
-				System.out.println("Choose a player by entering corresponding number \n");
-				System.out.println("1 Default" );
+				System.out.println("Choose a player by typing a corresponding number \n");
+				
+				ArrayList<Player> listOfPlayers =  DataBase.getPlayers();
+				
+				for (int i = 0; i<listOfPlayers.size();i++)
+					System.out.printf("%s - %s \n", i+1, listOfPlayers.get(i));
+
 				break;
 				
 			case "MainMenu":
@@ -69,33 +80,41 @@ public class HangmanCmd {
 				break;
 				
 			case "LoadGame":
-				System.out.println(drawHangman(12));
-				System.out.println("Welcome to Hangman The Game, " + game.getPlayer().getName()+"!\n");
-				System.out.println("Enter 'p' to Play New Game" );
-				System.out.println("Enter 'l' to Load Your Previous Game" );
-				System.out.println("Enter 'h' to Look At Highscores" );
-				System.out.println("Enter 'q' to Exit Game" );
-				System.out.println("Sorry... this function hasnt yet implemented... Try again" );
+				
 				break;
 				
 			case "Higscores":
-				System.out.println(drawHangman(12));
-				System.out.println("Welcome to Hangman The Game, " + game.getPlayer().getName()+"!\n");
-				System.out.println("Enter 'p' to Play New Game" );
-				System.out.println("Enter 'l' to Load Your Previous Game" );
-				System.out.println("Enter 'h' to Look At Highscores" );
+				
+				System.out.println("TABLE OF HIGHSCORES\n");
+				
+				System.out.println("------------------------------------------------");
+				System.out.println("   name  --  result");
+				System.out.println("------------------------------------------------");
+				ArrayList<Player> allPlayers = DataBase.getPlayers();
+				Collections.sort(allPlayers);
+				
+				for (Player n : allPlayers)
+					if (n.getName().matches(game.getPlayer().getName()))
+						System.out.printf("%s -- %s                <--- You are here\n", n.getName(), n.getHighscore());
+				
+					else
+						System.out.printf("%s -- %s\n", n.getName(), n.getHighscore());
+				
+				System.out.println("------------------------------------------------\n");
+				
+				System.out.println("Enter 'm' to ruturn to Main Menu" );
 				System.out.println("Enter 'q' to Exit Game" );
-				System.out.println("Sorry... this function hasnt yet implemented... Try again" );
+				
 				break;
 				
 			case "exitGame":
 				System.out.println("see you!");
 				break;
 				
-			case "YouLoose":
+			case "YouLose":
 				System.out.println(drawHangman(12));
 				System.out.println("Sorry.. You lose. The word was '"+ game.getWordToGuess()+"'");
-				System.out.println("Your final score is XXX");
+				System.out.println("Your final score is " + game.getPlayer().getHighscore());
 				System.out.println("Do you want to play again ?");
 				System.out.println("Enter 'p' to Play New Game" );
 				System.out.println("Enter 'h' to Look At Highscores" );
@@ -103,8 +122,8 @@ public class HangmanCmd {
 				break;	
 				
 			case "YouWin":
-				System.out.println("Congratilations! You Win! The word was '"+ game.getWordToGuess()+"'");
-				System.out.println("Your earn XXX points");
+				System.out.println("Congratulations! You Win! The word was '"+ game.getWordToGuess()+"'");
+				System.out.printf("Your earn %s points \n", 12 - game.GetHangmanStatus());
 				System.out.println("Do you want to play again ?");
 				System.out.println("Enter 'p' to Play New Game" );
 				System.out.println("Enter 'h' to Look At Highscores" );
