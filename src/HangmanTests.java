@@ -1,5 +1,9 @@
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +24,7 @@ class HangmanTests {
 	
 	@Test
 	void testDrawDashes() {
-
+		game.setWordToGuess("invasion");
 		assertEquals(" _  _  _  _  _  _  _  _ ", game.drawDashes());
 		
 		game.addToGuessed('i');
@@ -44,6 +48,7 @@ class HangmanTests {
 	
 	@Test
 	void AmIWonTest() {
+		game.setWordToGuess("invasion");
 		game.addToGuessed('i');
 		game.addToGuessed('n');
 		game.addToGuessed('v');
@@ -91,6 +96,7 @@ class HangmanTests {
 	
 	@Test
 	void getWordToGuessTest( ) {
+		game.setWordToGuess("invasion");
 		String actual = game.getWordToGuess();
 		String correct = "invasion"; 
 		assertEquals(correct, actual);
@@ -105,6 +111,7 @@ class HangmanTests {
 		actual = game.isGameGoOn();
 		assertFalse(actual);
 		
+		game.setWordToGuess("invasion");
 		game.SetHangmanStatus(1);
 		game.addToGuessed('i');
 		game.addToGuessed('n');
@@ -152,7 +159,7 @@ class HangmanTests {
 		
 		game.setStatus("NewPlayer");
 		game.change("Groll");
-		
+		game.setWordToGuess("invasion");
 		assertEquals("Groll", game.getPlayer().getName());
 		
 		assertEquals("MainMenu", game.getStatus());
@@ -177,10 +184,6 @@ class HangmanTests {
 		assertEquals("GameMustGoOn", game.getStatus());
 		
 		game.setStatus("MainMenu");
-		game.change("l");
-		assertEquals("MainMenu", game.getStatus());
-		assertEquals("ERROR! : this function hasn't yet implemented", game.getSystemMessage());
-		
 		game.change("h");
 		assertEquals("Higscores", game.getStatus());
 		
@@ -212,6 +215,7 @@ class HangmanTests {
 		
 		game.setStatus("GameMustGoOn");
 		game.SetHangmanStatus(2);
+		game.setWordToGuess("invasion");
 		game.change("i");
 		assertTrue(game.getGuessedLetters().contains('i'));
 		
@@ -233,8 +237,8 @@ class HangmanTests {
 		
 		game = new Hangman();
 		game.setStatus("YouLoose");
-		game.change("h");
-		assertEquals("Higscores", game.getStatus());
+		game.change("m");
+		assertEquals("MainMenu", game.getStatus());
 		
 		game = new Hangman();
 		game.setStatus("YouLoose");
@@ -245,6 +249,26 @@ class HangmanTests {
 		game.setStatus("YouLoose");
 		game.change("p");
 		assertEquals("GameMustGoOn", game.getStatus());
+		
+		game = new Hangman();
+		game.setStatus("NewPlayer");
+		game.change("Groll2");
+		game.setStatus("GameMustGoOn");
+		game.SetHangmanStatus(15);
+		game.getPlayer().setScore(100);
+		game.getPlayer().setHighScore(10);
+		game.change("s");
+		assertEquals(100, game.getPlayer().getScore());
+		
+		game = new Hangman();
+		game.setStatus("NewPlayer");
+		game.change("Groll3");
+		game.setStatus("GameMustGoOn");
+		game.SetHangmanStatus(11);
+		game.getPlayer().setScore(100);
+		game.getPlayer().setHighScore(10);
+		game.change("b");
+		assertEquals(100, game.getPlayer().getScore());
 		
 		game = new Hangman();
 		game.setDefaultHangman(new Player("Strike"));
@@ -257,8 +281,8 @@ class HangmanTests {
 		assertEquals("exit", game.getStatus());
 		
 		game.setStatus("YouWin");
-		game.change("h");
-		assertEquals("Higscores", game.getStatus());
+		game.change("m");
+		assertEquals("MainMenu", game.getStatus());
 		
 		game = new Hangman();
 		game.setStatus("startGame");
@@ -269,7 +293,28 @@ class HangmanTests {
 		game.setStatus("startGame");
 		game.change("e");
 		assertEquals("ExistingPlayer", game.getStatus());
-	
+		
+		game = new Hangman();
+		game.setStatus("GameMustGoOn");
+		game.setPlayer(new Player("Groll4"));
+		game.change("exit");
+		assertEquals("saveGame", game.getStatus());
+		
+		game = new Hangman();
+		game.setPlayer(new Player("Groll3"));
+		game.setStatus("saveGame");
+		game.change("y");
+		assertEquals("exitGame", game.getStatus());
+		
+		game = new Hangman();
+		game.setStatus("NewPlayer");
+		game.change("Groll3");
+		game.setStatus("saveGame");
+		game.change("n");
+		assertEquals("exitGame", game.getStatus());
+		
+		game = new Hangman();
+		game.setStatus("exitGame");
 	}
 	
 	
@@ -301,30 +346,30 @@ class HangmanTests {
 		assertEquals(0, groll.compareTo(crell));
 	}
 	
-	@Test
-	void playerGetSaveGameTest() {
-		Player groll = new Player("Groll");
-		Save actual = groll.getSaveGame();
-		Save expected = null;
-		
-		Player def = new Player("Default");
-		actual = def.getSaveGame();
-		assertEquals(expected, actual);
-		
+	@AfterAll
+	static void cleanUp() {
+		File toDelete = new File("players/Groll.dat");
+		toDelete.delete();
+		toDelete = new File("players/Groll2.dat");
+		toDelete.delete();
+		toDelete = new File("players/Groll3.dat");
+		toDelete.delete();
 	}
+//	@Test
+//	void playerGetSaveGameTest() {
+//		Player groll = new Player("Groll");
+//		Save actual = groll.getSaveGame();
+//		Save expected = null;
+//		
+//		Player def = new Player("Default");
+//		actual = def.getSaveGame();
+//		assertEquals(expected, actual);
+//		
+//	}
 	
 	// Save Class
 	
-	@Test
-	void DataTest() {
-		Save someSave = new Save("someData");
-		
-		String actual = someSave.getData();
-		String expected = "someData";
-		
-		assertEquals(expected, actual);
-		
-	}
+
 	
 	//DataBase Class
 	@Test
@@ -335,7 +380,17 @@ class HangmanTests {
 		assertEquals(expected, actual);
 	}
 	
-
+	@Test
+	void LoadGameTest1() {
+		Hangman game = new Hangman();  // creating a new game Hangman
+		game.setPlayer(new Player("Groll3"));
+		try {
+			Save.loadGame(game);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	@Test
 	void getStatusTest1() {
 		// Function getStatus from class Hangman.java under the test
@@ -352,6 +407,9 @@ class HangmanTests {
 		
 		 //compare the actual result with the expected value and report (done by framework)
 		assertEquals(correctResult, actual);
+		
+		game.setStatus("");
+		assertEquals("GameIsClosed",game.getStatus());
 	}
 	
 	@Test
@@ -378,7 +436,7 @@ class HangmanTests {
 
 		//setup and test-input-output definitions
 		Hangman game = new Hangman();  // creating a new game Hangman
-		
+		game.setWordToGuess("invasion");
 		//running the method that we are testing, this is called "exercise the sut"
 		boolean actual = game.isThereAletter('i');
 		
@@ -399,25 +457,25 @@ class HangmanTests {
 		assertFalse(actual);
 	}
 	
-	@Test
-	void GetSaveTest() { // Test to find a bug
-		
-		//Function GetSave from class Player.java under the test
-		
-		//setup and test-input-output definitions
-		Player newPlayer = new Player("John");
-		Save newPlayerSave = new Save();
-		newPlayer.setSaveGame(newPlayerSave);
-		
-		//expected result
-		Save correctResult = newPlayerSave;
-		
-		//running the method that we are testing, this is called "exercise the sut"
-		Save actual = newPlayer.getSaveGame();
-		
-		//compare the actual result with the expected value and report (done by framework)
-		assertEquals(correctResult, actual);
-	}
-	
+//	@Test
+//	void GetSaveTest() { // Test to find a bug
+//		
+//		//Function GetSave from class Player.java under the test
+//		
+//		//setup and test-input-output definitions
+//		Player newPlayer = new Player("John");
+//		Save newPlayerSave = new Save();
+//		newPlayer.setSaveGame(newPlayerSave);
+//		
+//		//expected result
+//		Save correctResult = newPlayerSave;
+//		
+//		//running the method that we are testing, this is called "exercise the sut"
+//		Save actual = newPlayer.getSaveGame();
+//		
+//		//compare the actual result with the expected value and report (done by framework)
+//		assertEquals(correctResult, actual);
+//	}
+//	
 
 }

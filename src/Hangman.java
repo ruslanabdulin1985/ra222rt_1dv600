@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.io.FileNotFoundException;
 import java.lang.Character;
 import java.lang.String;
 
@@ -42,6 +43,10 @@ public class Hangman {
 		
 	}
 	
+	public void setPlayer(Player player) {
+		this.player = player;
+	}
+	
 	public void setDefaultHangman(Player player) {
 		
 		this.systemMessage = "";
@@ -67,6 +72,10 @@ public class Hangman {
 		return wordToGuess;
 	}
 	
+	public void setWordToGuess(String word) {
+		this.wordToGuess = word;
+	}
+	
 	
 	public boolean isGameGoOn() {
 		if (this.hangmanStatus>=12 || this.AmIWon())  //must be an error - toFIX !
@@ -74,11 +83,6 @@ public class Hangman {
 		else
 			return true;	
 	}
-	
-//	public void setLasCharacterGuest(int n) {
-//		this.wasLasCharacterGuest = n;
-//	}
-	
 	
 	public int GetHangmanStatus(){
 		return this.hangmanStatus;
@@ -124,6 +128,10 @@ public class Hangman {
 			}
 		}
 		return coincidens;
+	}
+	
+	public ArrayList<Character> getTriedLetters(){
+		return triedLetters;
 	}
 	
 	
@@ -188,6 +196,8 @@ public class Hangman {
 		
 		this.systemMessage = "";
 		
+		
+		
 		switch(this.status) {
 		case "startGame":
 			if (input.matches("n"))
@@ -232,8 +242,19 @@ public class Hangman {
 				this.status = "GameMustGoOn";
 			
 			if (input.matches("l")) {
-				this.status = "MainMenu";
-				this.systemMessage="ERROR! : this function hasn't yet implemented";
+				if (Save.isSaveExists(this)) {
+					try {
+						Save.loadGame(this);
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						this.systemMessage = e.getMessage();
+					}
+				}
+				else {
+					this.status = "MainMenu";
+					this.systemMessage = "Couldn't find your game";
+				}
+				break;
 			}
 			
 			if (input.matches("h"))
@@ -244,9 +265,21 @@ public class Hangman {
 			
 			break;
 			
-		case "LoadGame":
-			
-			break;
+//		case "LoadGame":
+//			if (Save.isSaveExists(this)) {
+//				System.out.println("it exists !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//				try {
+//					Save.loadGame(this);
+//				} catch (FileNotFoundException e) {
+//					// TODO Auto-generated catch block
+//					this.systemMessage = e.getMessage();
+//				}
+//			}
+//			else {
+//				this.status = "MainMenu";
+//				this.systemMessage = "Couldn't find your game";
+//			}
+//			break;
 			
 		case "Higscores":
 			this.status = "MainMenu";
@@ -260,8 +293,11 @@ public class Hangman {
 			break;
 			
 		case "GameMustGoOn":
-			if (this.GetHangmanStatus()<12) {
-				if (this.isThereAletter(input.charAt(0))) {
+			
+			
+			if (this.GetHangmanStatus()<12 && !input.matches("exit")) {
+				if (this.isThereAletter(input.charAt(0))) { //contunue gamming process
+			
 					this.addToGuessed(input.charAt(0));
 					this.addToTried(input.charAt(0));
 //					this.setLasCharacterGuest(1);
@@ -270,50 +306,81 @@ public class Hangman {
 				else {
 					this.addToTried(input.charAt(0));
 					this.SetHangmanStatus(this.GetHangmanStatus()+2);
-//					this.setLasCharacterGuest(2);
-					//
+					if (this.GetHangmanStatus()>=12) {
+						this.status = "YouLoose";
+						if (this.player.getScore() > this.player.getHighscore()) {
+							this.player.setHighScore(this.player.getScore());
+							DataBase.addPlayerToFs(this.player);
+						}
+					}
 				}
 			}
-			else
+			else {
 				this.status = "YouLoose";
-			// hasn't been fully implemented 
-				
+				if (this.player.getScore() > this.player.getHighscore()) {
+					this.player.setHighScore(this.player.getScore());
+					DataBase.addPlayerToFs(this.player);
+				}
+			}
 				
 			
-			if (this.AmIWon())
+			if (this.AmIWon()) {
 				this.status = "YouWin";
+				this.player.setScore(this.player.getScore()+(12-this.hangmanStatus));
+				if (this.player.getScore() > this.player.getHighscore()) {
+						this.player.setHighScore(this.player.getScore());
+						DataBase.addPlayerToFs(this.player);
+					}
+			}
 			// hasn't been fully implemented 
 				
 			break;
-			
-			
-			
+				
 		case "YouLoose":
+			
 			if (input.matches("p")) {
 				setDefaultHangman(this.player);
 				this.status = "GameMustGoOn";
+				
 			}
 			
-			if (input.matches("h"))
-				this.status = "Higscores";
-			
+			if (input.matches("m")) {
+				
+				setDefaultHangman(this.player);
+				this.status = "MainMenu";
+			}
 			if (input.matches("q"))
 				this.status = "exit";
 			
 			break;	
+		
+		case "saveGame":
+			if (input.matches("y")) {
+				Save.saveGame(this);
+				this.status = "exitGame";
+			}
+			if (input.matches("n"))
+				this.status = "exitGame";
+		
+			break;
+			
+		case "exitGame":
+			System.exit(-1);
+			break;
 			
 		case "YouWin":
 			
-			this.player.setHighScore(12 - this.hangmanStatus);
+			
 			
 			if (input.matches("p")) {
 				setDefaultHangman(this.player);
 				this.status = "GameMustGoOn";
 			}
 
-			if (input.matches("h"))
-				this.status = "Higscores";
-			
+			if (input.matches("m")) {
+				setDefaultHangman(this.player);
+				this.status = "MainMenu";
+			}
 			if (input.matches("q"))
 				this.status = "exit";
 			
@@ -321,6 +388,21 @@ public class Hangman {
 			
 		}
 
+		
+		if (input.matches("exit")) {  // if typed exit at any time
+			if (isGameGoOn())
+				this.status = "saveGame";
+			else
+				this.status = "exitGame";
+//			if (this.triedLetters.size() != 0 && isGameGoOn()) // if there are any tired letters TODO - if there are any earned points
+//				this.status = "saveGame";
+//			
+//			else if(this.player.getScore()>0 && isGameGoOn())
+//				this.status = "saveGame";
+//			
+//			this.status = "exit";
+		}
+		
 //		System.out.println("Current status: "+ this.status);
 //		System.out.print("Current Input: ?" + input + "?" );
 		

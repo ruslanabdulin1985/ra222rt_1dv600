@@ -11,7 +11,6 @@ public class Player implements Comparable<Player> {
 	String name;
 	int highscore;
 	int currentScore;
-	Save saveGame = null;
 	
 	
 	public Player() {
@@ -34,6 +33,14 @@ public class Player implements Comparable<Player> {
 	
 	}
 
+	public void setScore(int score) {
+		this.currentScore = score;
+	}
+	
+	public int getScore() {
+		return this.currentScore;
+	}
+	
 	public int getHighscore() {
 		return this.highscore;
 	}
@@ -51,19 +58,5 @@ public class Player implements Comparable<Player> {
 		this.highscore = score;
 		
 	}
-	
-	public void setSaveGame(Save saveGame) {
-		
-		this.saveGame = saveGame;
-	}
-	
-	public Save getSaveGame() {
-		if (this.name.matches("Default")) {   // Bug version
-//		if (!this.name.matches("Default")) {  // Correct version
-			return this.saveGame;
-		}
-		return null;
-	}
-	
 	
 }

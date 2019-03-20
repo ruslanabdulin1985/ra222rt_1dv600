@@ -15,37 +15,48 @@ public class HangmanCmd {
 		
 		while(game.getStatus()!="exit") {
 			showInterface(game); // Show current interface to user
+			if (game.getSystemMessage().matches(""))
+
+				
+			if (!game.getStatus().matches("exitGame"))  //
+				System.out.println("Type here:");
 			
-			System.out.print("Type here:");
+			String userInput = sc.nextLine();
+
+			if (!game.getStatus().matches("NewPlayer")) 
+				userInput = userInput.toLowerCase();	// all the input to lower case
 			
-			game.change(sc.nextLine()); // apply input to the game
+			game.change(userInput); // apply input to the game
 
 		}
 		sc.close();
 	}
 
-
-	private static void showInterface(Hangman game) {
+	// main function which decides what the interface to show to user
+	// based on game.status
+	private static void showInterface(Hangman game) { 
 		
 		String status = game.getStatus();
 		System.out.println(emptyLines());
 		if (!game.getSystemMessage().matches("")){
-			System.out.println("--------------------------------");
-			System.out.println(game.getSystemMessage());
-			System.out.println("--------------------------------");
+			System.out.println("------------------------------------------------");
+			System.out.println(game.getSystemMessage());  // System message to show if something is wrong
+			System.out.println("------------------------------------------------");
 		}
 		
 		switch(status) {
 			case "startGame": 
 				
 				System.out.println(drawHangman(12));
-				System.out.println("Welcome to Hangman The Game!\n");
+				System.out.println("Welcome to Hangman The Game!");
+				System.out.println("To exit game -> type exit\n");
 				System.out.println("Enter 'n' for New Player or 'e' for Existing Player" );
 				break;
 			
 			case "NewPlayer":
 				System.out.println(drawHangman(12));
-				System.out.println("Welcome to Hangman The Game!\n");
+				System.out.println("Welcome to Hangman The Game!");
+				System.out.println("To exit game -> type exit\n");
 				System.out.println("Enter Your Name" );
 				
 				break;
@@ -72,14 +83,15 @@ public class HangmanCmd {
 				break;
 				
 			case "GameMustGoOn":
-				
 				System.out.println(drawHangman(game.GetHangmanStatus()));
-				System.out.println(game.getCurrentAlphabet()+"\n");
+				System.out.println(game.getCurrentAlphabet());
+				System.out.println("To exit game -> type exit\n");
 				System.out.println(drawDashes(game));
 				
 				break;
 				
 			case "LoadGame":
+				System.out.println("Loading... press any button to continue");
 				
 				break;
 				
@@ -104,33 +116,34 @@ public class HangmanCmd {
 				
 				System.out.println("Enter 'm' to ruturn to Main Menu" );
 				System.out.println("Enter 'q' to Exit Game" );
-				
+				break;
+			
+			case "saveGame":
+				System.out.println("Do you want to save your game ? y/n");
 				break;
 				
 			case "exitGame":
-				System.out.println("see you!");
+				System.out.println("Come back and play again! See You ?");
 				break;
 				
-			case "YouLose":
+			case "YouLoose":
 				System.out.println(drawHangman(12));
 				System.out.println("Sorry.. You lose. The word was '"+ game.getWordToGuess()+"'");
 				System.out.println("Your final score is " + game.getPlayer().getHighscore());
 				System.out.println("Do you want to play again ?");
 				System.out.println("Enter 'p' to Play New Game" );
-				System.out.println("Enter 'h' to Look At Highscores" );
+				System.out.println("Enter 'm' to return to Main Menu" );
 				System.out.println("Enter 'q' to Exit Game" );
 				break;	
 				
 			case "YouWin":
 				System.out.println("Congratulations! You Win! The word was '"+ game.getWordToGuess()+"'");
-				System.out.printf("Your earn %s points \n", 12 - game.GetHangmanStatus());
+				System.out.printf("You earned %s points. Total: %s \n", 12 - game.GetHangmanStatus(), game.getPlayer().getScore());
 				System.out.println("Do you want to play again ?");
 				System.out.println("Enter 'p' to Play New Game" );
-				System.out.println("Enter 'h' to Look At Highscores" );
+				System.out.println("Enter 'm' to return to Main Menu" );
 				System.out.println("Enter 'q' to Exit Game" );
 				break;	
-		
-				
 		}
 		
 	}
@@ -139,7 +152,7 @@ public class HangmanCmd {
 	 * Drawing current state of guessed word with dashes instaed unguessed lettes
 	 */
 	
-	public static String drawDashes(Hangman game) { // drawing dashes
+	public static String drawDashes(Hangman game) { // drawing dashes representing the word to guess
 		String dashes = "";
 		boolean coincidens = false;
 		for (int i = 0; i<game.getWordToGuess().length(); i++) {
@@ -157,11 +170,6 @@ public class HangmanCmd {
 				dashes += " _ ";
 		}
 		return dashes;
-					
-			
-			
-		
-		//System.out.println(dashes); 
 	}
 	
 	
@@ -175,7 +183,7 @@ public class HangmanCmd {
 		return out;
 	}
 	
-	/**
+	/*
 	 * drawing hangman 
 	 * 
 	 * @param hangmanStatus - status of hangman from 0 to 12. 12 - completed picture
@@ -192,8 +200,8 @@ public class HangmanCmd {
 			case 0:
 				line1 = "";
 				line2 = "";
-				line3 = "";
-				line4 = "";
+				line3 = "          Hangman:  ";
+				line4 = "            0%";
 				line5 = "";
 				line6 = "";
 				break;
@@ -201,8 +209,8 @@ public class HangmanCmd {
 			case 1:
 				line1 = "";
 				line2 = "";
-				line3 = "";
-				line4 = "";
+				line3 = "          Hangman: ";
+				line4 = "            10%";
 				line5 = "       | ";
 				line6 = "       |_";
 				break;
@@ -210,8 +218,8 @@ public class HangmanCmd {
 			case 2:
 				line1 = "";
 				line2 = "";
-				line3 = "";
-				line4 = "       | ";
+				line3 = "          Hangman: ";
+				line4 = "       |    20%";
 				line5 = "       | ";
 				line6 = "       |_";
 				break;
@@ -220,8 +228,8 @@ public class HangmanCmd {
 			case 3:
 				line1 = "";
 				line2 = "";
-				line3 = "       | ";
-				line4 = "       | ";
+				line3 = "       |  Hangman: ";
+				line4 = "       | 	 25%";
 				line5 = "       | ";
 				line6 = "       |_";
 				break;
@@ -229,8 +237,8 @@ public class HangmanCmd {
 			case 4:
 				line1 = "";
 				line2 = "       | ";
-				line3 = "       | ";
-				line4 = "       | ";
+				line3 = "       |  Hangman: ";
+				line4 = "       |    30%";
 				line5 = "       | ";
 				line6 = "       |_";
 				break;
@@ -238,8 +246,8 @@ public class HangmanCmd {
 			case 5:
 				line1 = "     __ ";
 				line2 = "       | ";
-				line3 = "       | ";
-				line4 = "       | ";
+				line3 = "       |  Hangman: ";
+				line4 = "       |    40%";
 				line5 = "       | ";
 				line6 = "       |_";
 				break;
@@ -247,8 +255,8 @@ public class HangmanCmd {
 			case 6:
 				line1 = "     __ ";
 				line2 = "    |  | ";
-				line3 = "       | ";
-				line4 = "       | ";
+				line3 = "       |  Hangman: ";
+				line4 = "       |    50% ";
 				line5 = "       | ";
 				line6 = "       |_";
 				break;
@@ -256,8 +264,8 @@ public class HangmanCmd {
 			case 7:
 				line1 = "     __ ";
 				line2 = "    |  | ";
-				line3 = "    o  | ";
-				line4 = "       | ";
+				line3 = "    o  |  Hangman: ";
+				line4 = "       |    60% ";
 				line5 = "       | ";
 				line6 = "       |_";
 				break;
@@ -265,8 +273,8 @@ public class HangmanCmd {
 			case 8:
 				line1 = "     __ ";
 				line2 = "    |  | ";
-				line3 = "    o  | ";
-				line4 = "   /   | ";
+				line3 = "    o  |  Hangman: ";
+				line4 = "   /   |    70% ";
 				line5 = "       | ";
 				line6 = "       |_";
 				break;
@@ -274,8 +282,8 @@ public class HangmanCmd {
 			case 9:
 				line1 = "     __ ";
 				line2 = "    |  | ";
-				line3 = "    o  | ";
-				line4 = "   / \\ | ";
+				line3 = "    o  |  Hangman: ";
+				line4 = "   / \\ |   75% ";
 				line5 = "       | ";
 				line6 = "       |_";
 				break;
@@ -283,8 +291,8 @@ public class HangmanCmd {
 			case 10:
 				line1 = "     __ ";
 				line2 = "    |  | ";
-				line3 = "    o  | ";
-				line4 = "   /|\\ | ";
+				line3 = "    o  |  Hangman: ";
+				line4 = "   /|\\ |   80% ";
 				line5 = "       | ";
 				line6 = "       |_";
 				break;
@@ -292,8 +300,8 @@ public class HangmanCmd {
 			case 11:
 				line1 = "     __ ";
 				line2 = "    |  | ";
-				line3 = "    o  | ";
-				line4 = "   /|\\ | ";
+				line3 = "    o  |  Hangman: ";
+				line4 = "   /|\\ |   90% ";
 				line5 = "     \\ | ";
 				line6 = "       |_";
 				break;
@@ -301,7 +309,7 @@ public class HangmanCmd {
 			case 12:
 				line1 = "     __ ";
 				line2 = "    |  | ";
-				line3 = "    o  | ";
+				line3 = "    o  |  ";
 				line4 = "   /|\\ | ";
 				line5 = "    (\\ | ";
 				line6 = "       |_";
