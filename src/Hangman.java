@@ -47,6 +47,7 @@ public class Hangman {
 		this.player = player;
 	}
 	
+	//set all the properties to default
 	public void setDefaultHangman(Player player) {
 		
 		this.systemMessage = "";
@@ -63,7 +64,7 @@ public class Hangman {
 		this.player = player;
 	}
 	
-	
+	// Message to print to user
 	public String getSystemMessage() {
 		return this.systemMessage;
 	}
@@ -76,9 +77,9 @@ public class Hangman {
 		this.wordToGuess = word;
 	}
 	
-	
+	//check if game goes on
 	public boolean isGameGoOn() {
-		if (this.hangmanStatus>=12 || this.AmIWon())  //must be an error - toFIX !
+		if (this.hangmanStatus>=12 || this.AmIWon())  
 			return false;
 		else
 			return true;	
@@ -93,7 +94,7 @@ public class Hangman {
 	}
 	
 	
-	public String drawDashes() { // drawing dashes
+	public String drawDashes() { // drawing dashes representing a word to guess
 		String dashes = "";
 		boolean coincidens = false;
 		for (int i = 0; i<this.wordToGuess.length(); i++) {
@@ -114,11 +115,12 @@ public class Hangman {
 					
 	}
 	
-	
+	// adding guessed letter to the arrayList
 	public void addToGuessed(char a) {
 		this.guessedLetters.add(a);
 	}
 	
+	//checks if user gueessed a letter
 	public boolean isThereAletter(char a) {
 		boolean coincidens = false;
 		for (int i = 0; i<this.wordToGuess.length();i++) {
@@ -135,7 +137,7 @@ public class Hangman {
 	}
 	
 	
-	
+	// alphabet representing available letters
 	public String getCurrentAlphabet() {
 		StringBuilder sb = new StringBuilder();
 		boolean coincidens = false;
@@ -168,7 +170,7 @@ public class Hangman {
 		return sb.toString();
 	}
 	
-	
+	// true if user is won
 	public boolean AmIWon() {
 		boolean win = true;
 		for(int i=0; i<this.wordToGuess.length(); i++)
